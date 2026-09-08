@@ -212,18 +212,24 @@ Provide:
 
 Generated `/api/vmanomaly/config.yaml` and `/api/vmanomaly/example-alert-rule.yaml` output is a starting point, not proof of correctness. The config endpoint preserves the VMUI/model-spec compatibility shape; before presenting v1.30.2+ deployment YAML, move the four stable business policies to `reader.queries.<alias>`, add `reader.workers` when appropriate, and validate the final configuration.
 
-## Safety
-
-- API validation and tasks do not deploy or hot-reload configuration.
-- Obtain approval before applying configs, creating persistent alert rules, or deleting state.
-- Bound samples, time ranges, series limits, trial counts, and concurrent tasks.
-- Never infer that empty data means the metric does not exist until the query and labels are checked.
-
-
-### Efficient Copilot context
+## Efficient Copilot context
 
 Reuse already available schemas, profiles and completed task results. Use focused documentation search with a small explicit top-k (usually 3–5); results may be excerpts. Check their source URI, offsets and truncation marker, then use `vmanomaly_read_doc_section` to retrieve missing context before relying on it. Do not treat excerpt omission as evidence that a parameter or limitation does not exist. Avoid repeating broad searches and full documentation in conversation history.
 
 Show each proposed configuration once through its approval card; reserve standalone YAML for explicit export requests. Keep explanations short. Never reduce context by dropping query aliases, expressions, disabled rows, business-policy inheritance, validation constraints, or pending approval data. Named-query UI application does not imply shared named-query autotune support; inspect the actual tool schema.
 
 The backend may compact duplicate completed tool results and enforce a local context budget independently of the provider. On a budget refusal, keep the current UI state and explain how to resume with a narrower request or a fresh conversation; do not claim an unapplied suggestion succeeded. Token ceilings are maximum output allowances, not targets. Usage counters and byte comparisons are useful for measurement but do not establish exact provider billing savings.
+
+
+## Joint autotune of named queries
+
+When the connected autotune schema exposes `queries`, send one map of active aliases to exact expressions and explicit business policies, omitting the legacy `query` field. Preserve null/omitted inheritance versus explicit zero, both and unbounded overrides. Tune the actual multivariate model class in one task and put model grouping in `frozen_params.groupby`. Each candidate is evaluated across independently fitted aligned groups, producing one shared configuration. Never merge separately tuned univariate configurations and describe the result as jointly tuned multivariate detection. The per-expression sample cap may need increasing to include matching groups from every query; incomplete groups fail explicitly.
+
+For older servers without this contract, explain the limitation rather than silently discarding queries or their policies. Keep `anomaly_percentage` described as a tuning target, not a guaranteed anomaly or false-positive upper bound. Apply the resulting model suggestion with the existing named queries and policy state; query-local policies must not be promoted to shared defaults accidentally.
+
+## Safety
+
+- API validation and tasks do not deploy or hot-reload configuration.
+- Obtain approval before applying configs, creating persistent alert rules, or deleting state.
+- Bound samples, time ranges, series limits, trial counts, and concurrent tasks.
+- Never infer that empty data means the metric does not exist until the query and labels are checked.
