@@ -117,7 +117,7 @@ Default hierarchy:
 
 - Fix `detection_direction` when business intent is known, and map insignificant absolute/relative deviations to `min_dev_from_expected` and `min_rel_dev_from_expected`.
 - In v1.30.2+ deployable YAML, place `data_range`, `detection_direction`, `min_dev_from_expected`, and `min_rel_dev_from_expected` under `reader.queries.<alias>`. Query values are authoritative across attached models; model-level values remain compatible local fallbacks but are deprecated.
-- For VMUI or an ad-hoc detection task, keep these fields in `model_spec`: the UI suggestion/query contract does not expose per-query business-policy fields. The backend maps `data_range` to the temporary query and resolves the other fields as model-local compatibility values.
+- For VMUI, inspect the connected suggestion contract. When `suggest_query_config` exposes `queries` and `expected_revision`, apply complete named query rows with their aliases, enabled states and per-query policies, copying the current revision and preserving untouched rows. Null/omitted policies inherit; explicit zero, both and unbounded values override. Older single-query contracts cannot apply a named query set; do not silently drop its policies. Keep model-level defaults separate.
 - Set model-level `clip_predictions` only when forecast and interval outputs should be clipped to that domain.
 - Use `min_n_samples_seen` to suppress scores during cold-start; express its duration as samples multiplied by query step.
 - For stable MAD, Z-score, or online-quantile data, consider `history_strength > 1` instead of many extra fit cycles; keep enough history to cover every required seasonal phase.
@@ -218,3 +218,12 @@ Generated `/api/vmanomaly/config.yaml` and `/api/vmanomaly/example-alert-rule.ya
 - Obtain approval before applying configs, creating persistent alert rules, or deleting state.
 - Bound samples, time ranges, series limits, trial counts, and concurrent tasks.
 - Never infer that empty data means the metric does not exist until the query and labels are checked.
+
+
+### Efficient Copilot context
+
+Reuse already available schemas, profiles and completed task results. Use focused documentation search with a small explicit top-k (usually 3–5); results may be excerpts. Check their source URI, offsets and truncation marker, then use `vmanomaly_read_doc_section` to retrieve missing context before relying on it. Do not treat excerpt omission as evidence that a parameter or limitation does not exist. Avoid repeating broad searches and full documentation in conversation history.
+
+Show each proposed configuration once through its approval card; reserve standalone YAML for explicit export requests. Keep explanations short. Never reduce context by dropping query aliases, expressions, disabled rows, business-policy inheritance, validation constraints, or pending approval data. Named-query UI application does not imply shared named-query autotune support; inspect the actual tool schema.
+
+The backend may compact duplicate completed tool results and enforce a local context budget independently of the provider. On a budget refusal, keep the current UI state and explain how to resume with a narrower request or a fresh conversation; do not claim an unapplied suggestion succeeded. Token ceilings are maximum output allowances, not targets. Usage counters and byte comparisons are useful for measurement but do not establish exact provider billing savings.
