@@ -130,12 +130,14 @@ LogsQL is space-separated (AND by default). Pipes use `|`.
 
 ### Instant (single point in time)
 
-Use `stats_query` with `time`. The query MUST contain a `| stats` pipe.
+Use `stats_query` with `start` and `end`. The query MUST contain a `| stats` pipe.
+Pass both bounds. `time` is only the evaluation timestamp and does not bound the range,
+so omitting `end` aggregates from `start` to now.
 
 ```bash
 curl -q --config "${VM_CURL_CONFIG:-/dev/null}" -s \
   --data-urlencode 'query={namespace="<NAMESPACE>"} | stats by (level) count() as total' \
-  "$VM_LOGS_URL/select/logsql/stats_query?time=<RFC3339>" | jq .
+  "$VM_LOGS_URL/select/logsql/stats_query?start=<RFC3339>&end=<RFC3339>" | jq .
 ```
 
 ### Range (over a time window)

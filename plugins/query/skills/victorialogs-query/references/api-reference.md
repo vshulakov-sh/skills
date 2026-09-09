@@ -49,8 +49,9 @@ Evaluate a LogsQL stats query at a single point in time. Query MUST contain a `|
 | Parameter | Required | Type | Default | Description |
 |-----------|----------|------|---------|-------------|
 | `query` | Yes | string | - | LogsQL query with `| stats` pipe |
-| `time` | Yes* | RFC3339 | - | Evaluation timestamp. *Required despite docs marking optional. |
-| `start` | No | RFC3339 | - | Alternative to `time` — start of aggregation window |
+| `start` | Yes* | RFC3339 | min stored | Start of the aggregation range |
+| `end` | Yes* | RFC3339 | now | End of the aggregation range. *Omit it and the range runs to now, which silently inverts period-over-period comparisons. |
+| `time` | No | RFC3339 | now | Prometheus evaluation timestamp. Does NOT bound the range. |
 
 Response (Prometheus-compatible JSON):
 
@@ -78,7 +79,7 @@ Example:
 ```bash
 curl -q --config "${VM_CURL_CONFIG:-/dev/null}" -s \
   --data-urlencode 'query={namespace="myapp"} | stats by (level) count() as total' \
-  "$VM_LOGS_URL/select/logsql/stats_query?time=2026-03-07T09:00:00Z" | jq .
+  "$VM_LOGS_URL/select/logsql/stats_query?start=2026-03-07T00:00:00Z&end=2026-03-07T09:00:00Z" | jq .
 ```
 
 ### GET/POST /select/logsql/stats_query_range — Range Stats
