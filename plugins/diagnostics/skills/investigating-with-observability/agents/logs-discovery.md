@@ -128,7 +128,7 @@ LogsQL is space-separated (AND by default). Pipes use `|`.
 
 ## Stats Queries
 
-### Instant (single point in time)
+### Instant (one value per group)
 
 Use `stats_query` with `start` and `end`. The query MUST contain a `| stats` pipe.
 Pass both bounds. `time` is only the evaluation timestamp and does not bound the range,
@@ -150,7 +150,7 @@ curl -q --config "${VM_CURL_CONFIG:-/dev/null}" -s \
   "$VM_LOGS_URL/select/logsql/stats_query_range?start=<RFC3339>&end=<RFC3339>&step=1h" | jq .
 ```
 
-**Do NOT confuse these two:** `stats_query` uses `time` (instant), `stats_query_range` uses `start`/`end`/`step` (range).
+**Do NOT confuse these two:** `stats_query` returns one value per group, `stats_query_range` returns a series per `step`. Both bound the range with `start`/`end`.
 
 ---
 

@@ -44,14 +44,16 @@ curl -q --config "${VM_CURL_CONFIG:-/dev/null}" -s \
 
 ### GET/POST /select/logsql/stats_query — Instant Stats
 
-Evaluate a LogsQL stats query at a single point in time. Query MUST contain a `| stats` pipe.
+Aggregate a LogsQL stats query over the `start`..`end` range and return one value per group. Query MUST contain a `| stats` pipe.
 
 | Parameter | Required | Type | Default | Description |
 |-----------|----------|------|---------|-------------|
 | `query` | Yes | string | - | LogsQL query with `| stats` pipe |
 | `start` | Yes* | RFC3339 | min stored | Start of the aggregation range |
-| `end` | Yes* | RFC3339 | now | End of the aggregation range. *Omit it and the range runs to now, which silently inverts period-over-period comparisons. |
+| `end` | Yes* | RFC3339 | now | End of the aggregation range |
 | `time` | No | RFC3339 | now | Prometheus evaluation timestamp. Does NOT bound the range. |
+
+*Pass both bounds. Each falls back to its default on its own, so `start` without `end` aggregates from `start` to now and silently inverts period-over-period comparisons.
 
 Response (Prometheus-compatible JSON):
 

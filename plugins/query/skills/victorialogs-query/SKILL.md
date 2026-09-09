@@ -66,7 +66,7 @@ Response: JSON Lines (one JSON object per line). Pipe through `jq -s .` to colle
 ### Stats Query (Instant)
 
 ```bash
-# Count errors by level at a point in time
+# Count errors by level over a 9-hour range
 curl -q --config "${VM_CURL_CONFIG:-/dev/null}" -s \
   --data-urlencode 'query={namespace="myapp"} | stats by (level) count() as total' \
   "$VM_LOGS_URL/select/logsql/stats_query?start=2026-03-07T00:00:00Z&end=2026-03-07T09:00:00Z" | jq .
