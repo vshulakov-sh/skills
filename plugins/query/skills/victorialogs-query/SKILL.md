@@ -36,7 +36,7 @@ When `VM_CURL_CONFIG` is unset, curl reads `/dev/null` and sends no auth header.
 ## Critical Rules
 
 - ALWAYS pass `start` on ALL VictoriaLogs endpoints — omitting it scans ALL stored data (extremely expensive). Not technically required by the API, but omitting it is almost never what you want.
-- `stats_query` bounds its aggregation range with `start` AND `end`. `time` is only the Prometheus evaluation timestamp and does NOT bound the range. Passing `start` without `end` aggregates from `start` to now, so an earlier window becomes a superset of a later one and period-over-period comparisons invert silently
+- `stats_query` bounds its aggregation range with `start` AND `end`. `time` is only the Prometheus evaluation timestamp and does NOT bound the range. Passing `start` without `end` aggregates from `start` to now
 - `stats_query_range` uses `start`/`end`/`step`
 - `step` is required for `hits` endpoint
 - `/select/logsql/query` returns JSON Lines (one JSON object per line), NOT a JSON array
